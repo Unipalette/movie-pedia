@@ -1,5 +1,5 @@
 import ReveiwList from "./ReviewList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getReviews } from "../api";
 
 function App() {
@@ -14,18 +14,26 @@ function App() {
     setItmes(nextItems);
   };
 
-  const handleLoadClick = async () => {
-    const { reviews } = await getReviews();
+  const handleLoad = async (orderQuery) => {
+    const { reviews } = await getReviews(orderQuery);
     setItmes(reviews);
   };
+
+  /*   async function handleLoad(orderQuery) {
+    const { reviews } = await getReviews(orderQuery);
+    setItmes(reviews);
+  }
+ */
+  useEffect(() => {
+    handleLoad(order);
+    console.log("load");
+  }, [order]);
 
   return (
     <>
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>베스트순</button>
       <ReveiwList items={sortedItems} onDelete={handleDelete} />
-
-      <button onClick={handleLoadClick}>불러오기</button>
     </>
   );
 }
