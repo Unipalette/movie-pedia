@@ -51,6 +51,10 @@ function App() {
     handleLoad({ order, offset, limit: LIMIT });
   };
 
+  const handleSubmitSuccess = (review) => {
+    setItmes((prevItems) => [review, ...prevItems]);
+  };
+
   /*   async function handleLoad(orderQuery) {
     const { reviews } = await getReviews(orderQuery);
     setItmes(reviews);
@@ -63,7 +67,7 @@ function App() {
 
   return (
     <>
-      <ReviewForm />
+      <ReviewForm onSubmitSuccess={handleSubmitSuccess} />
       <button onClick={handleNewestClick}>최신순</button>
       <button onClick={handleBestClick}>베스트순</button>
       <ReveiwList items={sortedItems} onDelete={handleDelete} />

@@ -1,0 +1,7 @@
+.Rating-star {
+  color: rgba(228, 255, 219, 0.697);
+}
+
+.Rating-star.selected {
+  color: rgb(76, 255, 118);
+}

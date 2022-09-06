@@ -1,59 +1,79 @@
 import { useState } from "react";
+import { createReviews } from "../api";
+import FileInput from "./FileInput";
+import RatingInput from "./RatingInput";
 import "./ReviewForm.css";
 
-function ReviewForm() {
-  /*   
-  const [title, setTitle] = useState("");
-  const [rating, setRating] = useState(0);
-  const [content, setContent] = useState("");
-   */
+const INITIAL_VALUES = {
+  title: "",
+  rating: 0,
+  content: "",
+  imgFile: null,
+};
 
-  // 스테이트 하나로 폼 구현 가능!(name 프로퍼티 사용)
+function ReviewForm({ onSubmitSuccess }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingError, setIsSubmittingError] = useState(null);
 
-  const [values, setValues] = useState({
-    title: "",
-    rating: 0,
-    content: "",
-  });
+  const [values, setValues] = useState(INITIAL_VALUES);
 
-  /*  
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-  };
-
-  const handleRatingChange = (e) => {
-    const nextRating = Number(e.target.value) || 0;
-    setRating(nextRating);
-  };
-
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
-  }; 
-  */
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (name, value) => {
     setValues((prevValues) => ({
       ...prevValues,
       [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(values);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(name, value);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("rating", values.rating);
+    formData.append("content", values.content);
+    formData.append("imgFile", values.imgFile);
+
+    let result;
+    try {
+      setIsSubmittingError(null);
+      setIsSubmitting(true);
+      result = await createReviews(formData);
+    } catch (error) {
+      setIsSubmittingError(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+    const { review } = result;
+    onSubmitSuccess(review);
+    setValues(INITIAL_VALUES);
+  };
+
   return (
     <form className="ReviewForm" onSubmit={handleSubmit}>
-      <input name="title" value={values.title} onChange={handleChange} />
-      <input
+      <FileInput
+        name="imgFile"
+        value={values.imgFile}
+        onChange={handleChange}
+      />
+      <input name="title" value={values.title} onChange={handleInputChange} />
+      <RatingInput
         name="rating"
-        type="number"
         value={values.rating}
         onChange={handleChange}
       />
-      <textarea name="content" value={values.content} onChange={handleChange} />
-      <button type="submit">확인</button>
+      <textarea
+        name="content"
+        value={values.content}
+        onChange={handleInputChange}
+      />
+      <button type="submit" disabled={isSubmitting}>
+        확인
+      </button>
+      {isSubmittingError?.message && <div>{isSubmittingError.message}</div>}
     </form>
   );
 }
