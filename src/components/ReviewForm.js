@@ -11,11 +11,16 @@ const INITIAL_VALUES = {
   imgFile: null,
 };
 
-function ReviewForm({ onSubmitSuccess }) {
+function ReviewForm({
+  initialPreview,
+  initialValues = INITIAL_VALUES,
+  onSubmitSuccess,
+  onCancel,
+  onSubmit,
+}) {
+  const [values, setValues] = useState(initialValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingError, setIsSubmittingError] = useState(null);
-
-  const [values, setValues] = useState(INITIAL_VALUES);
 
   const handleChange = (name, value) => {
     setValues((prevValues) => ({
@@ -36,14 +41,14 @@ function ReviewForm({ onSubmitSuccess }) {
     formData.append("rating", values.rating);
     formData.append("content", values.content);
     formData.append("imgFile", values.imgFile);
-
     let result;
     try {
       setIsSubmittingError(null);
       setIsSubmitting(true);
-      result = await createReviews(formData);
+      result = await onSubmit(formData);
     } catch (error) {
       setIsSubmittingError(error);
+      return;
     } finally {
       setIsSubmitting(false);
     }
@@ -55,6 +60,7 @@ function ReviewForm({ onSubmitSuccess }) {
   return (
     <form className="ReviewForm" onSubmit={handleSubmit}>
       <FileInput
+        initialPreview={initialPreview}
         name="imgFile"
         value={values.imgFile}
         onChange={handleChange}
@@ -70,6 +76,8 @@ function ReviewForm({ onSubmitSuccess }) {
         value={values.content}
         onChange={handleInputChange}
       />
+
+      {onCancel && <button onClick={onCancel}>취소</button>}
       <button type="submit" disabled={isSubmitting}>
         확인
       </button>
