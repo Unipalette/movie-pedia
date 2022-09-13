@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { updateReview } from "../api";
+import { useContext, useState } from "react";
+import LocaleContext, { useLocale } from "../contexts/LocaleContext";
 import Rating from "./Rating";
 import ReviewForm from "./ReviewForm";
 import "./ReviewList.css";
@@ -10,6 +10,7 @@ function formatDate(value) {
 }
 
 function ReviewListItem({ item, onDelete, onEdit }) {
+  const locale = useContext(LocaleContext);
   const handleEditClick = () => onEdit(item.id);
   const handleDeleteClick = () => onDelete(item.id);
 
@@ -21,6 +22,7 @@ function ReviewListItem({ item, onDelete, onEdit }) {
         <Rating value={item.rating} />
         <p>{formatDate(item.createdAt)}</p>
         <p>{item.content}</p>
+        <p>현재언어 : {locale}</p>
         <button onClick={handleEditClick}>수정</button>
         <button onClick={handleDeleteClick}>삭제</button>
       </div>
@@ -28,7 +30,7 @@ function ReviewListItem({ item, onDelete, onEdit }) {
   );
 }
 
-function ReveiwList({ items, onDelete, onUpdate, onUpdateSuccess }) {
+function ReviewList({ items, onDelete, onUpdate, onUpdateSuccess }) {
   const [editingId, setEditingId] = useState(null);
   const handleCancel = () => setEditingId(null);
 
@@ -70,4 +72,4 @@ function ReveiwList({ items, onDelete, onUpdate, onUpdateSuccess }) {
     </ul>
   );
 }
-export default ReveiwList;
+export default ReviewList;

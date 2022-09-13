@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createReviews } from "../api";
+import useAsync from "../hooks/useAsync";
 import FileInput from "./FileInput";
 import RatingInput from "./RatingInput";
 import "./ReviewForm.css";
@@ -19,8 +19,7 @@ function ReviewForm({
   onSubmit,
 }) {
   const [values, setValues] = useState(initialValues);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmittingError, setIsSubmittingError] = useState(null);
+  const [isSubmitting, submittingError, onSubmitAsync] = useAsync(onSubmit);
 
   const handleChange = (name, value) => {
     setValues((prevValues) => ({
@@ -41,17 +40,9 @@ function ReviewForm({
     formData.append("rating", values.rating);
     formData.append("content", values.content);
     formData.append("imgFile", values.imgFile);
-    let result;
-    try {
-      setIsSubmittingError(null);
-      setIsSubmitting(true);
-      result = await onSubmit(formData);
-    } catch (error) {
-      setIsSubmittingError(error);
-      return;
-    } finally {
-      setIsSubmitting(false);
-    }
+    const result = onSubmitAsync(formData);
+    if (!result) return;
+
     const { review } = result;
     onSubmitSuccess(review);
     setValues(INITIAL_VALUES);
@@ -81,7 +72,7 @@ function ReviewForm({
       <button type="submit" disabled={isSubmitting}>
         확인
       </button>
-      {isSubmittingError?.message && <div>{isSubmittingError.message}</div>}
+      {submittingError?.message && <div>{submittingError.message}</div>}
     </form>
   );
 }

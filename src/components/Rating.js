@@ -1,5 +1,4 @@
 import "./Rating.css";
-
 const RATINGS = [1, 2, 3, 4, 5];
 
 function Star({ selected = false, rating, onSelect, onHover }) {
